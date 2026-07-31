@@ -7,11 +7,10 @@ project(konduit VERSION 0.1.0 LANGUAGES C CXX)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-find_package(kontraband 0.1 CONFIG REQUIRED)
+find_package(kontraband 0.2 CONFIG REQUIRED)
 
 add_library(konduit_core INTERFACE)
 add_library(konduit::core ALIAS konduit_core)
-set_target_properties(konduit_core PROPERTIES EXPORT_NAME core)
 
 kontra_target_sources(konduit_core INTERFACE
     include/konduit/byte_view.hpp
@@ -20,17 +19,16 @@ kontra_target_include_directories(konduit_core INTERFACE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
+set_target_properties(konduit_core PROPERTIES EXPORT_NAME core)
 kontra_install_kernel_payload(konduit_core)
 kontra_dump_target(konduit_core)
 
 add_library(konduit_stream STATIC)
 add_library(konduit::stream ALIAS konduit_stream)
-set_target_properties(konduit_stream PROPERTIES EXPORT_NAME stream)
 
 target_compile_features(konduit_stream PUBLIC cxx_std_20)
 
 kontra_target_sources(konduit_stream PRIVATE
-    include/konduit/record_encoder.hpp
     src/record_encoder.cpp
 )
 
@@ -44,7 +42,7 @@ kontra_target_kernel_sources(konduit_stream PRIVATE
     kernel/device_sink.h
 )
 
-kontra_target_include_directories(konduit_stream PUBLIC
+target_include_directories(konduit_stream PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
@@ -57,6 +55,7 @@ kontra_target_link_libraries(konduit_stream PUBLIC
     konduit_core
 )
 
+set_target_properties(konduit_stream PROPERTIES EXPORT_NAME stream)
 kontra_install_kernel_payload(konduit_stream)
 kontra_dump_target(konduit_stream)
 
